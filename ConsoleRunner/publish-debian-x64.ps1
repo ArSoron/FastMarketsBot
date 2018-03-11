@@ -1,0 +1,1 @@
+dotnet publish -c release -r debian-x64

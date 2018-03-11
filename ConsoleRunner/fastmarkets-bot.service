@@ -1,0 +1,11 @@
+﻿[Unit]
+Description=FastMarkets Bot
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/dotnet /home/arsoron/FastMarketsBot/ConsoleRunner.dll 5000
+WorkingDirectory=/home/arsoron/FastMarketsBot
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

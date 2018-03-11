@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <RootNamespace>FastMarketsBot.Services.Telegram</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="2.0.0" />
+    <PackageReference Include="Telegram.Bot" Version="14.2.0-rc-452" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MindTricksService\MindTricksService.csproj" />
+  </ItemGroup>
+
+</Project>
