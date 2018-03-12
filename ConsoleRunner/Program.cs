@@ -22,6 +22,7 @@ namespace FastMarketsBot.ConsoleRunner
             .SetBasePath(Directory.GetCurrentDirectory())
             .AddJsonFile("appsettings.json")
             .AddJsonFile("appsettings.local.json", optional: true)
+            .AddEnvironmentVariables()
             .Build();
 
             var serviceProvider = new ServiceCollection()
