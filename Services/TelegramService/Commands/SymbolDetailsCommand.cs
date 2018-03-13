@@ -20,7 +20,7 @@ namespace FastMarketsBot.Services.Telegram.Commands
         public override async Task ProcessAsync(Message message, params string[] arguments)
         {
             string symbolId = arguments.First().TrimStart('/');
-            Symbol symbol = _mindTricksService.GetSymbol(symbolId);
+            Market market = _mindTricksService.GetMarket(symbolId);
             Enum.TryParse(arguments.Skip(1).FirstOrDefault(), out PriceType priceType);
 
             InlineKeyboardButton current = InlineKeyboardButton.WithCallbackData("Current", $"/{symbolId}");
@@ -36,18 +36,18 @@ namespace FastMarketsBot.Services.Telegram.Commands
 
             await _botClient.SendTextMessageAsync(
             message.Chat.Id,
-            symbol != null ?
-            $"/{symbol.Id} " + (priceType == PriceType.STLY ? "Same time last year" : priceType == PriceType.STLM ? "Same time last month" : "") + "\n" +
-            FormatPrice(priceType == PriceType.STLY ? symbol.STLY : priceType == PriceType.STLM ? symbol.STLM : symbol.LastPrice) :
+            market != null ?
+            $"/{market.NormalizedSymbol} " + (priceType == PriceType.STLY ? "Same time last year" : priceType == PriceType.STLM ? "Same time last month" : "") + "\n" +
+            FormatPrice(priceType == PriceType.STLY ? market.STLY : priceType == PriceType.STLM ? market.STLM : market.LastPrice) :
             "Symbol not found",
-            ParseMode.Html, replyMarkup: symbol != null? inlineKeyboard: InlineKeyboardMarkup.Empty());
+            ParseMode.Html, replyMarkup: market != null? inlineKeyboard: InlineKeyboardMarkup.Empty());
         }
 
         private string FormatPrice(Price price)
         {
             return $"Low: {price.Low}; Mid: {price.Mid}; High: {price.High}; " +
             $"{((price.MidChangeSincePrevious > 0 ? "▲" : "▼") + Math.Abs(price.MidChangeSincePrevious))}\n" +
-            $"Assessed at {price.AssessmentDate}";
+            $"Assessed at {price.AssessmentDate.ToString("dd MMM yyyy")}";
         }
 
         enum PriceType

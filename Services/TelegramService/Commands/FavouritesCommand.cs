@@ -18,7 +18,7 @@ namespace FastMarketsBot.Services.Telegram.Commands
         {
             await _botClient.SendTextMessageAsync(
             message.Chat.Id,
-            string.Join("\n", _mindTricksService.GetFavourites().Select(symbol => $"/{symbol.Id}\n{symbol.Description}")),
+            string.Join("\n", _mindTricksService.GetFavourites().Select(market => market.ToDisplayValue())),
             ParseMode.Html);
         }
     }

@@ -5,9 +5,9 @@ namespace FastMarkets.MindTricksService
 {
     public interface IMindTricksService
     {
-        IEnumerable<Symbol> GetFavourites();
-        IEnumerable<Symbol> Search(string searchString);
-        Symbol GetSymbol(string symbolId);
+        IEnumerable<Market> GetFavourites();
+        IEnumerable<Market> Search(string searchString);
+        Market GetMarket(string symbol);
         bool IsValidSymbol(string symbol);
     }
 }

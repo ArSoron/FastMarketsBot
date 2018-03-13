@@ -8,32 +8,41 @@ namespace FastMarkets.MindTricksService
 {
     public class MindTricksService : IMindTricksService
     {
-        private static IQueryable<Symbol> symbolsRepo = MockSymbols.GetSymbols();
+        private readonly IQueryable<Market> _symbolsRepo;
 
-        public IEnumerable<Symbol> GetFavourites()
+        public MindTricksService (MySqlMarkets mySqlMarkets)
         {
-            return symbolsRepo.Take(3);
+            _symbolsRepo = mySqlMarkets.GetMarkets();
         }
 
-        public Symbol GetSymbol(string symbolId)
+        public IEnumerable<Market> GetFavourites()
         {
-            return symbolsRepo.FirstOrDefault(symbol => symbol.Id == symbolId);
+            return _symbolsRepo.Take(3);
         }
 
-        public bool IsValidSymbol(string symbolId)
+        public Market GetMarket(string symbol)
         {
-            return symbolsRepo.Any(symbol => symbol.Id == symbolId);
+            return _symbolsRepo.FirstOrDefault(market => market.NormalizedSymbol == symbol);
         }
 
-        public IEnumerable<Symbol> Search(string searchString)
+        public bool IsValidSymbol(string symbol)
         {
-            var matching = symbolsRepo.Where(symbol => symbol.Id.Contains(searchString));
+            return _symbolsRepo.Any(market => market.NormalizedSymbol == symbol);
+        }
+
+        public IEnumerable<Market> Search(string searchString)
+        {
+            var matching = _symbolsRepo.Where(market => market.NormalizedSymbol.Contains(searchString));
             if (matching.Any())
             {
                 return matching;
             }
-            return symbolsRepo
-                .OrderByDescending(symbol => symbol.Description.LongestCommonSubsequence(searchString, false).Item2)
+            return 
+                _symbolsRepo.OrderByDescending(market => market.Product.LongestCommonSubsequence(searchString,false).Item2)
+                .Union(
+                _symbolsRepo
+                .OrderByDescending(market => market.Description.LongestCommonSubsequence(searchString, false).Item2)
+                )
                 .Take(5);
         }
     }
