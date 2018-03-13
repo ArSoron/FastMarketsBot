@@ -21,7 +21,7 @@ namespace FastMarketsBot.Services.Telegram.Commands
             message.Chat.Id,
             searchResults.Any()?
             $"We found following symbols for {message.Text}\n" +
-            string.Join("\n", searchResults.Select(symbol => $"/{symbol.Id}\n{symbol.Description}")):
+            string.Join("\n", searchResults.Select(market => market.ToDisplayValue())):
             "Nothing found",
             ParseMode.Html);
         }

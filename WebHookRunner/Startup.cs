@@ -1,4 +1,6 @@
 ﻿using FastMarkets.MindTricksService;
+using FastMarkets.MindTricksService.Data;
+using FastMarkets.MindTricksService.DataAccess;
 using FastMarketsBot.Services.Telegram;
 using FastMarketsBot.Services.Telegram.Commands;
 using FastMarketsBot.Services.Telegram.Helpers;
@@ -43,6 +45,10 @@ namespace FastMarketsBot.WebHookRunner
                 .AddScoped<ICommandFactory, CommandFactory>()
                 .AddScoped<IMindTricksService, MindTricksService>()
                 .AddSingleton<IWebApiConfiguration, WebApiConfiguration>()
+                .AddScoped<MySqlMarkets>()
+                .AddScoped((sp) => {
+                    return new MarketsContext(_configurationRoot["ConnectionStrings:MindTricks"]);
+                })
                 .AddMvc();
         }
 
