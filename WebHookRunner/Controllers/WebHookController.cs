@@ -27,22 +27,21 @@ namespace FastMarketsBot.WebHookRunner.Controllers
         {
             var message = update.Message;
 
-            //Console.WriteLine("Received Message from {0}", message.Chat.Id);
-
             if (update.Type == UpdateType.Message && message.Type == MessageType.Text)
             {
                 var arguments = message.Text.Split(' ').ToArray();
                 await _commandFactory.GetCommand(message.Text).ProcessAsync(message, arguments);
+                return Ok();
             }
-            else if (update.Type == UpdateType.CallbackQuery)
+            if (update.Type == UpdateType.CallbackQuery)
             {
                 var arguments = update.CallbackQuery.Data.Split(' ').ToArray();
                 await _commandFactory
                     .GetCommand(update.CallbackQuery.Data)
                     .ProcessAsync(update.CallbackQuery.Message, arguments);
                 await _botClient.AnswerCallbackQueryAsync(update.CallbackQuery.Id);
+                return Ok();
             }
-
             return Ok();
         }
 

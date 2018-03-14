@@ -8,6 +8,8 @@ using FastMarketsBot.Services.Telegram;
 using FastMarketsBot.Services.Telegram.Commands;
 using FastMarketsBot.Services.Telegram.Helpers;
 using FastMarkets.MindTricksService;
+using FastMarkets.MindTricksService.Data;
+using FastMarkets.MindTricksService.DataAccess;
 
 namespace FastMarketsBot.ConsoleRunner
 {
@@ -36,6 +38,10 @@ namespace FastMarketsBot.ConsoleRunner
             .AddScoped<SelfUpdatingMessage>()
             .AddScoped<ICommandFactory, CommandFactory>()
             .AddScoped<IMindTricksService, MindTricksService>()
+            .AddScoped<MySqlMarkets>()
+                .AddScoped((sp) => {
+                    return new MarketsContext(_configurationRoot["ConnectionStrings:MindTricks"]);
+                })
             .BuildServiceProvider();
 
 #if DEBUG

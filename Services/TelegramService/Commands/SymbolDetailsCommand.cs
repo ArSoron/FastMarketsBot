@@ -29,25 +29,31 @@ namespace FastMarketsBot.Services.Telegram.Commands
                     {
                         new [] // first row
                         {
-                            priceType != PriceType.STLM ? InlineKeyboardButton.WithCallbackData("STLM", $"/{symbolId} STLM") : current,
-                            priceType != PriceType.STLY ? InlineKeyboardButton.WithCallbackData("STLY", $"/{symbolId} STLY") : current
+                            priceType != PriceType.STLM ? InlineKeyboardButton.WithCallbackData("Same Time Last Month", $"/{symbolId} STLM") : current,
+                            priceType != PriceType.STLY ? InlineKeyboardButton.WithCallbackData("Same Time Last Year", $"/{symbolId} STLY") : current
                         }
                     });
 
             await _botClient.SendTextMessageAsync(
             message.Chat.Id,
-            market != null ?
-            $"/{market.NormalizedSymbol} " + (priceType == PriceType.STLY ? "Same time last year" : priceType == PriceType.STLM ? "Same time last month" : "") + "\n" +
-            FormatPrice(priceType == PriceType.STLY ? market.STLY : priceType == PriceType.STLM ? market.STLM : market.LastPrice) :
-            "Symbol not found",
-            ParseMode.Html, replyMarkup: market != null? inlineKeyboard: InlineKeyboardMarkup.Empty());
+            market != null
+                ? $"/{market.NormalizedSymbol} "
+                    + (priceType == PriceType.STLY 
+                        ? "<strong>Same time last year</strong>" 
+                        : priceType == PriceType.STLM 
+                            ? "<strong>Same time last month</strong>" 
+                            : "")
+                    + "\n"
+                    + FormatPrice(priceType == PriceType.STLY ? market.STLY : priceType == PriceType.STLM ? market.STLM : market.LastPrice)
+                : "Symbol not found",
+            ParseMode.Html, replyMarkup: market != null && priceType == PriceType.Current? inlineKeyboard: InlineKeyboardMarkup.Empty());
         }
 
         private string FormatPrice(Price price)
         {
             return $"Low: {price.Low}; Mid: {price.Mid}; High: {price.High}; " +
             $"{((price.MidChangeSincePrevious > 0 ? "▲" : "▼") + Math.Abs(price.MidChangeSincePrevious))}\n" +
-            $"Assessed at {price.AssessmentDate.ToString("dd MMM yyyy")}";
+            $"Assessed on {price.AssessmentDate.ToString("dd MMM yyyy")}";
         }
 
         enum PriceType

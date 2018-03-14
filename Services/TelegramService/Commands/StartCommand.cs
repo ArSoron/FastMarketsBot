@@ -6,8 +6,9 @@ namespace FastMarketsBot.Services.Telegram.Commands
 {
     public class StartCommand : CommandBase
     {
-        const string welcomeMessage = "Hello! Welcome to FastMarkets Bot!\n"+
-"Try /favourites to list default instruments";
+        const string welcomeMessage = "Hello! Welcome to FastMarkets Bot!\n"
+            + "Try /favourites to list default instruments\n"
+            + "Type anything to search for markets";
 
         public StartCommand(ITelegramBotClient botClient) : base(botClient)
         {
