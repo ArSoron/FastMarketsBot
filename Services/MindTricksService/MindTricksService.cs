@@ -32,6 +32,8 @@ namespace FastMarkets.MindTricksService
 
         public IEnumerable<Market> Search(params string[] searchString)
         {
+            if (!searchString.Any())
+                return Enumerable.Empty<Market>();
             var matching = _symbolsRepo.Where(market => market.NormalizedSymbol.Contains(searchString.First()))
                 .Take(5);
             if (matching.Any())
