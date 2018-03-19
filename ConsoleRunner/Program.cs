@@ -36,7 +36,14 @@ namespace FastMarketsBot.ConsoleRunner
                 return new TelegramBotClient(config.Apikey);
             })
             .AddScoped<SelfUpdatingMessage>()
-            .AddScoped<ICommandFactory, CommandFactory>()
+            .AddScoped<StartCommand>()
+            .AddScoped<ICommand, FavouritesCommand>()
+            .AddScoped<ICommand, SearchCommand>()
+            .AddScoped<ICommand, StartCommand>()
+            .AddScoped<ICommand, SymbolDetailsCommand>()
+            .AddScoped<ICommandFactory, CommandFactory>(sp => {
+                return new CommandFactory(sp.GetServices<ICommand>(), sp.GetRequiredService<StartCommand>());
+            })
             .AddScoped<IMindTricksService, MindTricksService>()
             .AddScoped<MySqlMarkets>()
                 .AddScoped((sp) => {

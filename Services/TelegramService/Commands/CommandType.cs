@@ -4,6 +4,8 @@
     {
         Start,
         Help,
-        Favourites
+        Favourites,
+        Search,
+        SymbolDetails
     }
 }

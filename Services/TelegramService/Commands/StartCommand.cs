@@ -14,6 +14,8 @@ namespace FastMarketsBot.Services.Telegram.Commands
         {
         }
 
+        public override CommandType CommandType => CommandType.Start;
+
         public override async Task ProcessAsync(Message message, params string[] arguments)
         {
             await _botClient.SendTextMessageAsync(message.Chat.Id, welcomeMessage);

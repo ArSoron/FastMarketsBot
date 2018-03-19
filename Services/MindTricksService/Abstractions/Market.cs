@@ -23,8 +23,8 @@ namespace FastMarkets.MindTricksService.Abstractions
         [NotMapped]
         public Price STLY => RandomPrice(DateTimeOffset.UtcNow.AddDays(-1).AddMonths(-12));
 
-        public string ToDisplayValue() => $"/{NormalizedSymbol}\n{Product} in {Location}, {Currency} per {UnitOfMeasure}; {Incoterm}";
-        public string ToLongDisplayValue() => $"/{NormalizedSymbol}\n{Description} in {Location}, {Currency} per {UnitOfMeasure}; {Incoterm}";
+        public string ToDisplayValue() => $"/{NormalizedSymbol}\n<b>{Product}</b> in {Location}, {Currency} per {UnitOfMeasure}; {Incoterm}";
+        public string ToLongDisplayValue() => $"/{NormalizedSymbol}\n<b>{Product}</b>\n<b>{Description}</b> in {Location}, {Currency} per {UnitOfMeasure}; {Incoterm}";
 
         private Price RandomPrice(DateTimeOffset assessmentDate)
         {

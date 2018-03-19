@@ -30,20 +30,20 @@ namespace FastMarkets.MindTricksService
             return _symbolsRepo.Any(market => market.NormalizedSymbol == symbol);
         }
 
-        public IEnumerable<Market> Search(string searchString)
+        public IEnumerable<Market> Search(params string[] searchString)
         {
-            var matching = _symbolsRepo.Where(market => market.NormalizedSymbol.Contains(searchString))
+            var matching = _symbolsRepo.Where(market => market.NormalizedSymbol.Contains(searchString.First()))
                 .Take(5);
             if (matching.Any())
             {
                 return matching;
             }
             return 
-                _symbolsRepo.OrderByDescending(market => market.Product.LongestCommonSubsequence(searchString,false).Item2)
-                .Union(
+                //_symbolsRepo.OrderByDescending(market => market.Product.LongestCommonSubsequence(false,searchString).Item2)
+                //.Union(
                 _symbolsRepo
-                .OrderByDescending(market => market.Description.LongestCommonSubsequence(searchString, false).Item2)
-                )
+                .OrderByDescending(market => market.Description.LongestCommonSubsequence(false, searchString).Item2)
+                //)
                 .Take(5);
         }
     }

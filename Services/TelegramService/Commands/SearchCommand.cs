@@ -14,14 +14,16 @@ namespace FastMarketsBot.Services.Telegram.Commands
         {
         }
 
+        public override CommandType CommandType => CommandType.Search;
+
         public override async Task ProcessAsync(Message message, params string[] arguments)
         {
-            var searchResults = _mindTricksService.Search(message.Text);
+            var searchResults = _mindTricksService.Search(arguments);
             await _botClient.SendTextMessageAsync(
             message.Chat.Id,
-            searchResults.Any()?
-            $"We found following symbols for {message.Text}\n" +
-            string.Join("\n", searchResults.Select(market => market.ToLongDisplayValue())):
+            searchResults.Any() ?
+            $"We found following symbols for {string.Join(" ", arguments)}\n" +
+            string.Join("\n", searchResults.Select(market => market.ToLongDisplayValue())) :
             "Nothing found",
             ParseMode.Html);
         }

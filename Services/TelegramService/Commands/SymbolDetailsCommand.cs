@@ -17,36 +17,70 @@ namespace FastMarketsBot.Services.Telegram.Commands
         {
         }
 
+        public override CommandType CommandType => CommandType.SymbolDetails;
+
         public override async Task ProcessAsync(Message message, params string[] arguments)
         {
             string symbolId = arguments.First().TrimStart('/');
             Market market = _mindTricksService.GetMarket(symbolId);
-            Enum.TryParse(arguments.Skip(1).FirstOrDefault(), out PriceType priceType);
+            Enum.TryParse(arguments.Skip(1).FirstOrDefault(), out DisplayType displayType);
 
-            InlineKeyboardButton current = InlineKeyboardButton.WithCallbackData("Current", $"/{symbolId}");
-
-            var inlineKeyboard = new InlineKeyboardMarkup(new[]
+            var currentInlineKeyboard = new InlineKeyboardMarkup(new[]
                     {
                         new [] // first row
                         {
-                            priceType != PriceType.STLM ? InlineKeyboardButton.WithCallbackData("Same Time Last Month", $"/{symbolId} STLM") : current,
-                            priceType != PriceType.STLY ? InlineKeyboardButton.WithCallbackData("Same Time Last Year", $"/{symbolId} STLY") : current
+                            InlineKeyboardButton.WithCallbackData("Same Time Last Month", $"/{symbolId} STLM"),
+                            InlineKeyboardButton.WithCallbackData("Same Time Last Year", $"/{symbolId} STLY")
+                        },
+                        new [] //second row
+                        {
+                            InlineKeyboardButton.WithCallbackData("Details", $"/{symbolId} Details"),
                         }
                     });
+            var detailsInlineKeyboard = new InlineKeyboardMarkup(new[]
+                    {
+                        new [] // first row
+                        {
+                            InlineKeyboardButton.WithCallbackData("Add to favourites", $"/favourites {symbolId}")
+                        }
+                    });
+            IReplyMarkup replyMarkup;
+            if (market != null && displayType == DisplayType.Current)
+                replyMarkup = currentInlineKeyboard;
+            else if (market != null && displayType == DisplayType.Details)
+                replyMarkup = detailsInlineKeyboard;
+            else
+                replyMarkup = InlineKeyboardMarkup.Empty();
+
+            string replyText = "";
+            if (market == null)
+            {
+                replyText = "Symbol not found";
+            }
+            else if (displayType == DisplayType.Details)
+            {
+                replyText = $"{market.ToLongDisplayValue()}";
+            }
+            else
+            {
+                replyText = $"/{market.NormalizedSymbol} "
+                    + (displayType == DisplayType.STLY
+                        ? "<strong>Same time last year</strong>"
+                        : displayType == DisplayType.STLM
+                            ? "<strong>Same time last month</strong>"
+                            : "")
+                    + "\n"
+                    + FormatPrice(displayType == DisplayType.STLY
+                        ? market.STLY
+                        : displayType == DisplayType.STLM
+                            ? market.STLM
+                            : market.LastPrice);
+            }
 
             await _botClient.SendTextMessageAsync(
             message.Chat.Id,
-            market != null
-                ? $"/{market.NormalizedSymbol} "
-                    + (priceType == PriceType.STLY 
-                        ? "<strong>Same time last year</strong>" 
-                        : priceType == PriceType.STLM 
-                            ? "<strong>Same time last month</strong>" 
-                            : "")
-                    + "\n"
-                    + FormatPrice(priceType == PriceType.STLY ? market.STLY : priceType == PriceType.STLM ? market.STLM : market.LastPrice)
-                : "Symbol not found",
-            ParseMode.Html, replyMarkup: market != null && priceType == PriceType.Current? inlineKeyboard: InlineKeyboardMarkup.Empty());
+            replyText,
+            ParseMode.Html, replyMarkup: replyMarkup);
         }
 
         private string FormatPrice(Price price)
@@ -56,11 +90,12 @@ namespace FastMarketsBot.Services.Telegram.Commands
             $"Assessed on {price.AssessmentDate.ToString("dd MMM yyyy")}";
         }
 
-        enum PriceType
+        enum DisplayType
         {
             Current = 0,
             STLM,
-            STLY
+            STLY,
+            Details
         }
     }
 }

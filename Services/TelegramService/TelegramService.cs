@@ -5,6 +5,7 @@ using Telegram.Bot;
 using Telegram.Bot.Args;
 using Telegram.Bot.Types.Enums;
 using FastMarketsBot.Services.Telegram.Commands;
+using FastMarketsBot.Services.Telegram.Helpers;
 
 namespace FastMarketsBot.Services.Telegram
 {
@@ -56,15 +57,17 @@ namespace FastMarketsBot.Services.Telegram
                 return;
             }
 
-            var arguments = message.Text.Split(' ').ToArray();
-            await _commandFactory.GetCommand(message.Text).ProcessAsync(message, arguments);
+            var command = _commandFactory.GetCommand(message.Text);
+            var arguments = message.Text.GetArguments(command.CommandType);
+            await command.ProcessAsync(message, arguments);
         }
 
         private async void BotOnCallbackQueryReceived(object sender, CallbackQueryEventArgs callbackQueryEventArgs)
         {
-            var arguments = callbackQueryEventArgs.CallbackQuery.Data.Split(' ').ToArray();
-            await _commandFactory
-                .GetCommand(callbackQueryEventArgs.CallbackQuery.Data)
+            var command = _commandFactory
+                .GetCommand(callbackQueryEventArgs.CallbackQuery.Data);
+            var arguments = callbackQueryEventArgs.CallbackQuery.Data.GetArguments(command.CommandType);
+            await command
                 .ProcessAsync(callbackQueryEventArgs.CallbackQuery.Message, arguments);
             await _botClient.AnswerCallbackQueryAsync(callbackQueryEventArgs.CallbackQuery.Id);
         }
