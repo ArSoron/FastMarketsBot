@@ -2,6 +2,23 @@
 
 public static class LongestCommonSubsequenceExtensions
 {
+    public static Tuple<string, double> LongestCommonSubsequence(this string input, bool caseSensitive = false, params string[] comparedTo)
+    {
+        double best = 0;
+        string bestString = "";
+        double total = 0;
+        foreach (var str in comparedTo)
+        {
+            var match = input.LongestCommonSubsequence(str, caseSensitive);
+            total += match.Item2;
+            if (match.Item2 > best)
+            {
+                best = match.Item2;
+                bestString = match.Item1;
+            }
+        }
+        return new Tuple<string, double>(bestString, total);
+    }
     /// <summary>
     /// Longest Common Subsequence. A good value is greater than 0.33.
     /// </summary>

@@ -42,11 +42,20 @@ namespace FastMarketsBot.WebHookRunner
                     return new TelegramBotClient(config.Apikey);
                 })
                 .AddScoped<SelfUpdatingMessage>()
-                .AddScoped<ICommandFactory, CommandFactory>()
+                .AddScoped<StartCommand>()
+                .AddScoped<ICommand, FavouritesCommand>()
+                .AddScoped<ICommand, SearchCommand>()
+                .AddScoped<ICommand, StartCommand>()
+                .AddScoped<ICommand, SymbolDetailsCommand>()
+                .AddScoped<ICommandFactory, CommandFactory>(sp =>
+                {
+                    return new CommandFactory(sp.GetServices<ICommand>(), sp.GetRequiredService<StartCommand>());
+                })
                 .AddScoped<IMindTricksService, MindTricksService>()
                 .AddSingleton<IWebApiConfiguration, WebApiConfiguration>()
                 .AddScoped<MySqlMarkets>()
-                .AddScoped((sp) => {
+                .AddScoped((sp) =>
+                {
                     return new MarketsContext(_configurationRoot["ConnectionStrings:MindTricks"]);
                 })
                 .AddMvc();

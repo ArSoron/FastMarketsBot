@@ -1,49 +1,37 @@
-﻿using Telegram.Bot;
-using FastMarketsBot.Services.Telegram.Helpers;
-using System;
+﻿using System;
 using System.Linq;
-using FastMarkets.MindTricksService;
+using System.Collections.Generic;
+using FastMarketsBot.Services.Telegram.Helpers;
 
 namespace FastMarketsBot.Services.Telegram.Commands
 {
     public class CommandFactory : ICommandFactory
     {
-        private readonly ITelegramBotClient _botClient;
-        private readonly SelfUpdatingMessage _selfUpdatingMessage;
-        private readonly IMindTricksService _mindTricksService;
+        private readonly IEnumerable<ICommand> _commands;
+        private readonly ICommand _defaultCommand;
 
-        public CommandFactory(ITelegramBotClient botClient, SelfUpdatingMessage selfUpdatingMessage, IMindTricksService mindTricksService)
+        public CommandFactory(IEnumerable<ICommand> commands, ICommand defaultCommand)
         {
-            _botClient = botClient;
-            _selfUpdatingMessage = selfUpdatingMessage;
-            _mindTricksService = mindTricksService;
+            _commands = commands;
+            _defaultCommand = defaultCommand;
         }
 
-        public ICommand GetCommand(CommandType command)
+        public ICommand GetCommand(CommandType commandType)
         {
-            switch (command)
-            {
-                case CommandType.Start:
-                    return new StartCommand(_botClient);
-                case CommandType.Favourites:
-                    return new FavouritesCommand(_botClient, _mindTricksService);
-                case CommandType.Help:
-                default:
-                    return new StartCommand(_botClient);
-            }
+            return _commands.FirstOrDefault(command => command.CommandType == commandType) ??_defaultCommand ;
         }
 
         public ICommand GetCommand(string messageText)
         {
-            if (Enum.TryParse(messageText.Split(' ').First().TrimStart('/'), true, out CommandType commandType))
+            if (Enum.TryParse(messageText.GetCommand(), true, out CommandType commandType))
             {
                 return GetCommand(commandType);
             }
             if (!messageText.StartsWith("/"))
             {
-                return new SearchCommand(_botClient, _mindTricksService);
+                return GetCommand(CommandType.Search);
             }
-            return new SymbolDetailsCommand(_botClient, _mindTricksService);
+            return GetCommand(CommandType.SymbolDetails);
         }
     }
 }

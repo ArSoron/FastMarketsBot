@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using FastMarketsBot.Services.Telegram.Commands;
+using FastMarketsBot.Services.Telegram.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -25,19 +26,19 @@ namespace FastMarketsBot.WebHookRunner.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([FromBody]Update update)
         {
-            var message = update.Message;
 
-            if (update.Type == UpdateType.Message && message.Type == MessageType.Text)
+            if ((update.Type == UpdateType.Message || update.Type == UpdateType.EditedMessage) && update.Message.Type == MessageType.Text)
             {
-                var arguments = message.Text.Split(' ').ToArray();
-                await _commandFactory.GetCommand(message.Text).ProcessAsync(message, arguments);
+                var command = _commandFactory.GetCommand(update.Message.Text);
+                var arguments = update.Message.Text.GetArguments(command.CommandType);
+                await command.ProcessAsync(update.Message, arguments);
                 return Ok();
             }
             if (update.Type == UpdateType.CallbackQuery)
             {
-                var arguments = update.CallbackQuery.Data.Split(' ').ToArray();
-                await _commandFactory
-                    .GetCommand(update.CallbackQuery.Data)
+                var command = _commandFactory.GetCommand(update.CallbackQuery.Data);
+                var arguments = update.CallbackQuery.Data.GetArguments(command.CommandType);
+                await command
                     .ProcessAsync(update.CallbackQuery.Message, arguments);
                 await _botClient.AnswerCallbackQueryAsync(update.CallbackQuery.Id);
                 return Ok();

@@ -13,6 +13,8 @@ namespace FastMarketsBot.Services.Telegram.Commands
             _botClient = botClient;
         }
 
+        public abstract CommandType CommandType { get; }
+
         public abstract Task ProcessAsync(Message message, params string[] arguments);
     }
 }
