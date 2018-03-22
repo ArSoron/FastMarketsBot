@@ -38,9 +38,9 @@ namespace FastMarketsBot.WebHookRunner.Controllers
             {
                 var command = _commandFactory.GetCommand(update.CallbackQuery.Data);
                 var arguments = update.CallbackQuery.Data.GetArguments(command.CommandType);
+                await _botClient.AnswerCallbackQueryAsync(update.CallbackQuery.Id);
                 await command
                     .ProcessAsync(update.CallbackQuery.Message, arguments);
-                await _botClient.AnswerCallbackQueryAsync(update.CallbackQuery.Id);
                 return Ok();
             }
             return Ok();
